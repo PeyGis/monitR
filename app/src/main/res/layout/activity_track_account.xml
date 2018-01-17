@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_tracke_account"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#e3e3e3"
+    tools:context="com.capstone.icoffie.monitr.TrackAccount">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include layout="@layout/nav_actionbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:background="@color/colorPrimary">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Account Name"
+                    android:textColor="@color/colorWhite"
+                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
+                    android:id="@+id/accountName"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Online Account Description"
+                    android:textColor="@color/colorWhite"
+                    android:layout_below="@id/accountName"
+                    android:id="@+id/accountTagline"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:id="@+id/viewloginactivity"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/tracker_border"
+                    android:padding="@dimen/activity_horizontal_margin">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/filesaver"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="LOGIN ACTIVITY"
+                        android:layout_marginTop="10dp"
+                        android:textAlignment="center"
+                        android:textSize="@dimen/activity_horizontal_margin"
+                        android:textColor="@color/colorPrimaryDark"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:id="@+id/viewalldevices"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/tracker_border"
+                    android:padding="@dimen/activity_horizontal_margin">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/share"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="VIEW DEVICES"
+                        android:layout_marginTop="10dp"
+                        android:textAlignment="center"
+                        android:textSize="@dimen/activity_horizontal_margin"
+                        android:textColor="@color/colorPrimaryDark"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:id="@+id/adddevice"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/tracker_border"
+                    android:padding="@dimen/activity_horizontal_margin">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/network"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ADD DEVICE"
+                        android:layout_marginTop="10dp"
+                        android:textAlignment="center"
+                        android:textSize="@dimen/activity_horizontal_margin"
+                        android:textColor="@color/colorPrimaryDark"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:id="@+id/addgeofence"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:background="@drawable/tracker_border"
+                    android:padding="@dimen/activity_horizontal_margin">
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/call"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="ADD GEOFENCE"
+                        android:layout_marginTop="10dp"
+                        android:textAlignment="center"
+                        android:textSize="@dimen/activity_horizontal_margin"
+                        android:textColor="@color/colorPrimaryDark"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+
+            <!--<Button-->
+                <!--android:background="@color/colorPrimaryDark"-->
+                <!--android:id="@+id/viewloginactivity"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="View Login Activity"-->
+                <!--android:textColor="@color/colorWhite"-->
+                <!--android:layout_marginTop="@dimen/activity_horizontal_margin"-->
+                <!--android:padding="@dimen/activity_horizontal_margin"-->
+                <!--/>-->
+            <!--<Button-->
+                <!--android:background="@color/colorPrimaryDark"-->
+                <!--android:id="@+id/viewalldevices"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="View All Devices"-->
+                <!--android:textColor="@color/colorWhite"-->
+                <!--android:layout_marginTop="@dimen/activity_horizontal_margin"-->
+                <!--android:padding="@dimen/activity_horizontal_margin"-->
+                <!--/>-->
+            <!--<Button-->
+                <!--android:background="@color/colorPrimaryDark"-->
+                <!--android:id="@+id/adddevice"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Add New Devices"-->
+                <!--android:textColor="@color/colorWhite"-->
+                <!--android:layout_marginTop="@dimen/activity_horizontal_margin"-->
+                <!--android:padding="@dimen/activity_horizontal_margin"-->
+                <!--/>-->
+            <!--<Button-->
+                <!--android:background="@color/colorPrimaryDark"-->
+                <!--android:id="@+id/addgeofence"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="Add New Geofence"-->
+                <!--android:textColor="@color/colorWhite"-->
+                <!--android:layout_marginTop="@dimen/activity_horizontal_margin"-->
+                <!--android:padding="@dimen/activity_horizontal_margin"-->
+                <!--/>-->
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
+

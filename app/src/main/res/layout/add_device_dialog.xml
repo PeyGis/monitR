@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/add_device_root"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin">
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Adding a New Device "
+        android:textAlignment="center"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/thisDevice"
+        android:text="Use This Device Instead"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+
+    <EditText
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Device Name"
+        android:padding="15dp"
+        android:id="@+id/deviceTitle" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Device IME or Serial"
+        android:padding="15dp"
+        android:id="@+id/deviceId"/>
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:weightSum="2">-->
+
+        <!--<Button-->
+            <!--android:id="@+id/saveDevice"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@color/colorPrimary"-->
+            <!--android:layout_weight="1"-->
+            <!--android:layout_marginEnd="1dp"-->
+            <!--android:text="Save"/>-->
+
+        <!--<Button-->
+            <!--android:id="@+id/cancelDevice"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@color/colorPrimary"-->
+            <!--android:layout_weight="1"-->
+            <!--android:layout_marginStart="10dp"-->
+            <!--android:text="Cancel"/>-->
+
+
+    <!--</LinearLayout>-->
+
+
+</LinearLayout>
