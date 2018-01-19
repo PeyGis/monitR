@@ -12,16 +12,11 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/appicon"
+        android:icon="@drawable/ic_monitr"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".LoginActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".UserDashBoardActivity" />
         <activity android:name=".RegistrationActivity" />
@@ -77,7 +72,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".UserDashBoardActivity" />
         </activity>
-        <activity android:name=".ViewDevicesActivity"></activity>
+        <activity android:name=".ViewDevicesActivity" />
+        <activity android:name=".SplashscreenActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
