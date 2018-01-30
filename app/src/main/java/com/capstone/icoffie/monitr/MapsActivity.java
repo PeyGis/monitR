@@ -1,4 +1,5 @@
 package com.capstone.icoffie.monitr;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -14,6 +15,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.capstone.icoffie.monitr.adapters.UserAccountAdapter;
+import com.capstone.icoffie.monitr.model.API_ENDPOINT;
+import com.capstone.icoffie.monitr.model.SharedPrefManager;
+import com.capstone.icoffie.monitr.model.SingletonApi;
+import com.capstone.icoffie.monitr.model.UserAccountModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,11 +35,19 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private Toolbar toolbar;
     private Button takeAction;
+    String userTokenExtra = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +59,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //get bundle or extras from TRACK ACCOUNT activity
+       Bundle bundle = getIntent().getExtras();
+        String accountNameExtra = bundle.getString("ACCOUNT_NAME");
+       userTokenExtra = bundle.getString("USER_TOKEN");
+
+        //initialize map object
         initMap();
+
+        // get user login history
+       // getUserLoginHistory(userTokenExtra);
     }
 
     public void initMap(){
@@ -66,7 +94,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (googleMap != null){
                 mMap = googleMap;
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                mMap.setMinZoomPreference(8);
+                mMap.setMinZoomPreference(7);
                 mMap.setOnMarkerClickListener(this);
                 // Add a marker in Sydney and move the camera
                 LatLng ashesi = new LatLng(5.759800, -0.219751);
@@ -77,6 +105,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.addMarker(new MarkerOptions().position(kwabenya).title("Your Device was logged in at Tamale").icon(BitmapDescriptorFactory.fromResource(R.drawable.desktop)));
                 mMap.addMarker(new MarkerOptions().position(kumasi).title("Your Device was logged in at Kumasi").icon(BitmapDescriptorFactory.fromResource(R.drawable.phone)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(kwabenya));
+
+                getUserLoginHistory(userTokenExtra);
             }
 
         } catch (Exception e){
@@ -158,6 +188,73 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
         }
+
+    }
+    // show toast
+    public void showToast(String msg){
+        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+    }
+
+    // fetch user login History from API
+    public void getUserLoginHistory(final String user_token) {
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMessage("Connecting to Service Provider.....");
+        progressDialog.show();
+
+        // RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, API_ENDPOINT.USER_LOGIN_HISTORY_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        progressDialog.dismiss();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            if (!jsonObject.getBoolean("error")) {
+
+                                //JSONArray userAccounts = jsonObject.getJSONArray("login_audit");
+//                                for(int i=0; i < userAccounts.length(); i++) {
+//                                    JSONObject oneAccount = userAccounts.getJSONObject(i);
+//
+//
+//                                }
+                                Toast.makeText(getApplicationContext(),
+                                        jsonObject.toString(), Toast.LENGTH_LONG).show();
+
+
+                            } else if (jsonObject.getBoolean("error")) {
+                                showToast(jsonObject.getString("message"));
+                            } else{
+                                // do nothing
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        progressDialog.dismiss();
+                        error.printStackTrace();
+                        Toast.makeText(getApplicationContext(),
+                                "Oops! Check internet connection", Toast.LENGTH_SHORT).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                Map<String, String> params = new HashMap<>();
+                params.put("type", "audit");
+                params.put("user_token", user_token);
+
+                return params;
+            }
+        };
+        //requestQueue.add(stringRequest);
+        SingletonApi.getClassinstance(getApplicationContext()).addToRequest(stringRequest);
 
     }
 }

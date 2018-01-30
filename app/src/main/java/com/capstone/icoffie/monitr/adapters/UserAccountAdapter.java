@@ -82,6 +82,7 @@ public class UserAccountAdapter extends RecyclerView.Adapter<UserAccountAdapter.
                 myIntent.putExtra("ACCOUNT_TAGLINE", userAccount.getAccountTagline());
                 myIntent.putExtra("ACCOUNT_ID", userAccount.getAccountId());
                 myIntent.putExtra("USER_ACCOUNT_ID", userAccount.getUserAccountId());
+                myIntent.putExtra("USER_TOKEN", userAccount.getUserToken());
                 v.getContext().startActivity(myIntent);
             }
         });

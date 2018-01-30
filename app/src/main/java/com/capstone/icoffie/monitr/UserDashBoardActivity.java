@@ -37,7 +37,7 @@ public class UserDashBoardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_dash_board );
 
-        //if user isn't logged in
+//        //if user isn't logged in
         if(!SharedPrefManager.getClassinstance(this).isLoggedIn()){
             finish();
             startActivity(new Intent(UserDashBoardActivity.this, LoginActivity.class));

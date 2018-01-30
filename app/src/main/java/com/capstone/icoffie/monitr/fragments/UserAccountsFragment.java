@@ -108,7 +108,8 @@ public class UserAccountsFragment extends Fragment{
                                             oneAccount.getString("Account_Name"),
                                             oneAccount.getString("Account_Tagline"),
                                             oneAccount.getString("Online_Account_Id"),
-                                            oneAccount.getString("User_Online_Account_Id"));
+                                            oneAccount.getString("User_Online_Account_Id"),
+                                            oneAccount.getString("User_Token"));
 
                                     userAccountModelArrayList.add(onlineAccount);
                                 }

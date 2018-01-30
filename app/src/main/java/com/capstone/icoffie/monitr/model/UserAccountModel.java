@@ -10,12 +10,14 @@ public class UserAccountModel {
     private String accountTagline;
     private String accountId;
     private String userAccountId;
+    private String userToken;
 
-    public UserAccountModel(String accountName, String accountTagline, String accountId, String userAccountId) {
+    public UserAccountModel(String accountName, String accountTagline, String accountId, String userAccountId, String userToken) {
         this.accountName = accountName;
         this.accountTagline = accountTagline;
         this.accountId = accountId;
         this.userAccountId = userAccountId;
+        this.userToken = userToken;
     }
 
     public String getAccountName() {
@@ -49,4 +51,8 @@ public class UserAccountModel {
     public void setUserAccountId(String userAccountId) {
         this.userAccountId = userAccountId;
     }
+
+    public String getUserToken() {return userToken; }
+
+    public void setUserToken(String userToken) { this.userToken = userToken; }
 }

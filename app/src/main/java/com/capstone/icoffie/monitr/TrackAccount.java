@@ -1,5 +1,6 @@
 package com.capstone.icoffie.monitr;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,6 +16,20 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.capstone.icoffie.monitr.model.API_ENDPOINT;
+import com.capstone.icoffie.monitr.model.SingletonApi;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class TrackAccount extends AppCompatActivity {
 
@@ -34,10 +49,11 @@ public class TrackAccount extends AppCompatActivity {
 
         //get bundle or extras from fragment activity
         Bundle bundle = getIntent().getExtras();
-        String accountNameExtra = bundle.getString("ACCOUNT_NAME");
+        final String accountNameExtra = bundle.getString("ACCOUNT_NAME");
         String accountTaglineExtra = bundle.getString("ACCOUNT_TAGLINE");
         String accountIdExtra = bundle.getString("ACCOUNT_ID");
         String userAccountIdExtra = bundle.getString("USER_ACCOUNT_ID");
+        final String userTokenExtra = bundle.getString("USER_TOKEN");
 
         // get view components by ids
         accountTaglineTv = (TextView) findViewById(R.id.accountTagline);
@@ -56,14 +72,21 @@ public class TrackAccount extends AppCompatActivity {
         viewAllDevices.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(TrackAccount.this, ViewDevicesActivity.class));
+                Intent devicesIntent = new Intent(TrackAccount.this, ViewDevicesActivity.class);
+                //mapIntent.putExtra("ACCOUNT_NAME", accountNameExtra);
+                //mapIntent.putExtra("USER_TOKEN", userTokenExtra);
+                startActivity(devicesIntent);
             }
         });
 
         viewLoginActivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(TrackAccount.this, MapsActivity.class));
+                Intent mapIntent = new Intent(TrackAccount.this, MapsActivity.class);
+                mapIntent.putExtra("ACCOUNT_NAME", accountNameExtra);
+                mapIntent.putExtra("USER_TOKEN", userTokenExtra);
+                startActivity(mapIntent);
+
             }
         });
 

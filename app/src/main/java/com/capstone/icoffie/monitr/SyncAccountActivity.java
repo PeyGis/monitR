@@ -46,7 +46,7 @@ public class SyncAccountActivity extends AppCompatActivity {
 
         //get bundle or extras from fragment activity
         Bundle bundle = getIntent().getExtras();
-        String accountNameExtra = bundle.getString("PROVIDER_NAME");
+        final String providerNameExtra = bundle.getString("PROVIDER_NAME");
         final String accountIdExtra = bundle.getString("ACCOUNT_ID");
 
         // get view components by ids
@@ -56,7 +56,7 @@ public class SyncAccountActivity extends AppCompatActivity {
         loginBtn = (Button) findViewById(R.id.loginBtn);
 
         //set provider name from data passed from prev actiivyt
-        providerName.append(accountNameExtra);
+        providerName.append(providerNameExtra);
 
         // do some validation and sync account
         emailwrapper.setHint("your email address");
@@ -84,13 +84,13 @@ public class SyncAccountActivity extends AppCompatActivity {
                 } else {
                     emailwrapper.setErrorEnabled(false);
                     passwordwrapper.setErrorEnabled(false);
-                    callSyncAccountAPI(useremail, userpassword, accountIdExtra);
+                    callSyncAccountAPI(useremail, userpassword, accountIdExtra, providerNameExtra);
                 }
             }
         });
     }
 
-    public void callSyncAccountAPI(final String email, final String password, final String accountId) {
+    public void callSyncAccountAPI(final String email, final String password, final String accountId, final String providerName) {
 
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Synching Your Account.....");
@@ -135,8 +135,9 @@ public class SyncAccountActivity extends AppCompatActivity {
                 params.put("type", "create");
                 params.put("userId", String.valueOf(SharedPrefManager.getClassinstance(getApplicationContext()).getUserId()));
                 params.put("accountId", accountId);
-
-
+                params.put("providerName", providerName);
+                params.put("email", email);
+                params.put("password", password);
 
                 return params;
             }
