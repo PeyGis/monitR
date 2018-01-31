@@ -1,6 +1,7 @@
 package com.capstone.icoffie.monitr;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -22,6 +23,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.capstone.icoffie.monitr.adapters.UserAccountAdapter;
 import com.capstone.icoffie.monitr.model.API_ENDPOINT;
+import com.capstone.icoffie.monitr.model.LoginHistory;
 import com.capstone.icoffie.monitr.model.SharedPrefManager;
 import com.capstone.icoffie.monitr.model.SingletonApi;
 import com.capstone.icoffie.monitr.model.UserAccountModel;
@@ -39,7 +41,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -48,6 +52,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Toolbar toolbar;
     private Button takeAction;
     String userTokenExtra = "";
+    private Map<String, LoginHistory> loginHistoryMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,11 +69,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String accountNameExtra = bundle.getString("ACCOUNT_NAME");
        userTokenExtra = bundle.getString("USER_TOKEN");
 
+        //init arrayList
+        loginHistoryMap = new HashMap<>();
         //initialize map object
         initMap();
 
-        // get user login history
-       // getUserLoginHistory(userTokenExtra);
     }
 
     public void initMap(){
@@ -94,19 +99,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (googleMap != null){
                 mMap = googleMap;
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                mMap.setMinZoomPreference(7);
+                mMap.setMinZoomPreference(8);
                 mMap.setOnMarkerClickListener(this);
-                // Add a marker in Sydney and move the camera
-                LatLng ashesi = new LatLng(5.759800, -0.219751);
-                LatLng kwabenya = new LatLng(7.019800, 0.419751);
-                LatLng kumasi = new LatLng(6.8771, -1.622);
 
-                mMap.addMarker(new MarkerOptions().position(ashesi).title("Your Device was logged in at Ashesi").icon(BitmapDescriptorFactory.fromResource(R.drawable.phone)));
-                mMap.addMarker(new MarkerOptions().position(kwabenya).title("Your Device was logged in at Tamale").icon(BitmapDescriptorFactory.fromResource(R.drawable.desktop)));
-                mMap.addMarker(new MarkerOptions().position(kumasi).title("Your Device was logged in at Kumasi").icon(BitmapDescriptorFactory.fromResource(R.drawable.phone)));
+                //fetch login details from data model
+                getUserLoginHistory(userTokenExtra);
+
+               LatLng kwabenya = new LatLng(7.019800, 0.419751);
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(kwabenya));
 
-                getUserLoginHistory(userTokenExtra);
+
             }
 
         } catch (Exception e){
@@ -137,13 +139,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onMarkerClick(final Marker marker) {
         AlertDialog.Builder markerDialog = new AlertDialog.Builder(this);
         markerDialog.setTitle("Take Action");
-        final String[] options = {"Logout", "Block Device", "Report"};
+        final String[] options = {"Device", "Block Device", "Report"};
         markerDialog.setIcon(R.drawable.appicon);
         markerDialog.setItems(options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(which == 0){
-                    marker.remove();
+                    //marker.remove();
+                    String markerTag = marker.getId();
+                    showToast(loginHistoryMap.get(markerTag).getDeviceName());
+                    //showToast(loginHistoryList.get(i).getDeviceName());
                 }
                 else if(which == 1) {
                     marker.remove();
@@ -212,15 +217,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             JSONObject jsonObject = new JSONObject(response);
                             if (!jsonObject.getBoolean("error")) {
 
-                                //JSONArray userAccounts = jsonObject.getJSONArray("login_audit");
-//                                for(int i=0; i < userAccounts.length(); i++) {
-//                                    JSONObject oneAccount = userAccounts.getJSONObject(i);
-//
-//
-//                                }
-                                Toast.makeText(getApplicationContext(),
-                                        jsonObject.toString(), Toast.LENGTH_LONG).show();
+                                JSONArray login_audit_array = jsonObject.getJSONArray("login_audit");
+                                if(login_audit_array != null){
+                                    int i;
+                                    for(i=0; i < login_audit_array.length(); i++) {
+                                        JSONObject login_record = login_audit_array.getJSONObject(i);
+                                        LoginHistory loginHistory = new LoginHistory(
+                                                login_record.getDouble("Latitude"),
+                                                login_record.getDouble("Longitude"),
+                                                login_record.getString("Device_Name"),
+                                                login_record.getString("Device_IME"),
+                                                login_record.getString("Token"),
+                                                login_record.getString("Status"),
+                                                login_record.getString("Date_Created")
+                                                );
 
+                                        LatLng position = new LatLng(login_record.getDouble("Latitude"), login_record.getDouble("Longitude"));
+                                        String title = login_record.getString("Device_Name");
+                                       Marker marker =  mMap.addMarker(new MarkerOptions().position(position).title(title));
+                                        loginHistoryMap.put(marker.getId(), loginHistory);
+
+                                    }
+                                    showToast(i + " " + jsonObject.getString("message"));
+
+
+                                }
 
                             } else if (jsonObject.getBoolean("error")) {
                                 showToast(jsonObject.getString("message"));
