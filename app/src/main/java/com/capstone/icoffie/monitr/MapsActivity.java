@@ -1,19 +1,24 @@
 package com.capstone.icoffie.monitr;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -53,6 +58,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Button takeAction;
     String userTokenExtra = "";
     private Map<String, LoginHistory> loginHistoryMap;
+    final Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +111,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //fetch login details from data model
                 getUserLoginHistory(userTokenExtra);
 
-               LatLng kwabenya = new LatLng(7.019800, 0.419751);
+               LatLng kwabenya = new LatLng(5.89800, -0.219751);
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(kwabenya));
 
 
@@ -137,32 +143,104 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public boolean onMarkerClick(final Marker marker) {
-        AlertDialog.Builder markerDialog = new AlertDialog.Builder(this);
-        markerDialog.setTitle("Take Action");
-        final String[] options = {"Device", "Block Device", "Report"};
-        markerDialog.setIcon(R.drawable.appicon);
-        markerDialog.setItems(options, new DialogInterface.OnClickListener() {
+
+        //inflate layout and get the dialog view
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.login_details_dialog, null);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setView(view);
+       // builder.setCancelable(false);
+        builder.setIcon(R.drawable.ic_monitr);
+
+
+        //get view components by referencing id
+        TextView deviceNameTv = (TextView) view.findViewById(R.id.deviceNameTv);
+        TextView deviceIMETv = (TextView) view.findViewById(R.id.deviceIMETv);
+        TextView deviceLocationTv = (TextView) view.findViewById(R.id.locationTv);
+        TextView deviceDateTv = (TextView) view.findViewById(R.id.loginDateTv);
+        TextView deviceStatusTv = (TextView) view.findViewById(R.id.statusTv);
+        Button noBtn = (Button)view.findViewById(R.id.noBtn);
+        Button yesBtn = (Button)view.findViewById(R.id.yesBtn);
+
+        //get Login history Object from marker
+        String markerId = marker.getId();
+        LoginHistory loginHistory = loginHistoryMap.get(markerId);
+
+        //set data from marker object to view widgets or dialog
+        deviceNameTv.append(loginHistory.getDeviceName());
+        deviceIMETv.append(loginHistory.getDeviceIme());
+        deviceLocationTv.append(String.valueOf(loginHistory.getLatitude()) + ", " + String.valueOf(loginHistory.getLongitude()));
+        deviceDateTv.append(loginHistory.getDate());
+        deviceStatusTv.append(loginHistory.getStatus());
+
+        // when user clicks no button, open a dialog so user can take action
+        noBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(which == 0){
-                    //marker.remove();
-                    String markerTag = marker.getId();
-                    showToast(loginHistoryMap.get(markerTag).getDeviceName());
-                    //showToast(loginHistoryList.get(i).getDeviceName());
-                }
-                else if(which == 1) {
-                    marker.remove();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Report Sent Successfully", Toast.LENGTH_SHORT).show();
-                }
+            public void onClick(View v) {
+               openDialog();
             }
         });
 
-        AlertDialog alertDialog = markerDialog.create();
-        alertDialog.show();
+        //when user clicks yes button
+        yesBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder yesOption = new AlertDialog.Builder(context);
+                yesOption.setTitle("Adding Device");
+                yesOption.setCancelable(false);
+                yesOption.setIcon(R.drawable.ic_monitr);
+                yesOption.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        showToast("Added Succesfully");
+
+                    }
+                }).setNegativeButton("Not Now", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                // create alert dialog
+                AlertDialog yesalertDialog = yesOption.create();
+                // show alert
+                yesalertDialog.show();
+
+            }
+        });
+
+        // create alert dialog
+        AlertDialog loginDetailsalertDialog = builder.create();
+        //alertDialog.setIcon(R.drawable.icon);
+        // show alert
+        loginDetailsalertDialog.show();
+//        AlertDialog.Builder markerDialog = new AlertDialog.Builder(this);
+//        markerDialog.setTitle("Take Action");
+//        final String[] options = {"Device", "Block Device", "Report"};
+//        markerDialog.setIcon(R.drawable.appicon);
+//        markerDialog.setItems(options, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                if(which == 0){
+//                    //marker.remove();
+//                    String markerTag = marker.getId();
+//                    showToast(loginHistoryMap.get(markerTag).getDeviceName());
+//                    //showToast(loginHistoryList.get(i).getDeviceName());
+//                }
+//                else if(which == 1) {
+//                    marker.remove();
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "Report Sent Successfully", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+//
+//        AlertDialog alertDialog = markerDialog.create();
+//        alertDialog.show();
         return true;
     }
-
     private void drawCircle(LatLng point){
         CircleOptions circleOptions = new CircleOptions();
         circleOptions.center(point);
