@@ -5,10 +5,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
+import android.provider.*;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.telephony.TelephonyManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -115,7 +118,7 @@ public class TrackAccount extends AppCompatActivity {
                 thisDevice.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        String serial = Build.SERIAL;
+                        String serial = getDeviceIMEI();
                         String model = Build.MODEL;
                         device_ime.setText(serial);
                         device_title.setText(model);
@@ -155,6 +158,23 @@ public class TrackAccount extends AppCompatActivity {
 
     public void makeToast(String message){
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Returns the unique identifier for the device
+     *
+     * @return unique identifier for the device
+     */
+    public String getDeviceIMEI() {
+        String deviceUniqueIdentifier = null;
+        TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        if (null != tm) {
+            deviceUniqueIdentifier = tm.getDeviceId();
+        }
+        if (null == deviceUniqueIdentifier || 0 == deviceUniqueIdentifier.length()) {
+            deviceUniqueIdentifier = android.provider.Settings.System.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
+        }
+        return deviceUniqueIdentifier;
     }
 }
 

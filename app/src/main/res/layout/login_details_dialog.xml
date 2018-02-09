@@ -10,7 +10,7 @@
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Login Histroy "
+        android:text="Login History "
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"
         android:textAppearance="?android:attr/textAppearanceLarge"
@@ -55,7 +55,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Were realize a recent login into your account with the above details. is it you? "
+        android:textColor="@color/colorPrimaryDark"
+        android:text="We realized a recent login into your account with the above details. was it you? "
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_margin="10dp"/>
 

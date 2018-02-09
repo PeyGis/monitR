@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -39,8 +40,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserAccountsFragment extends Fragment{
-
+public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private View view;
@@ -76,8 +77,29 @@ public class UserAccountsFragment extends Fragment{
         // initialize Arraylist
         userAccountModelArrayList = new ArrayList<>();
 
-        //fetch user accounts data from server 
-        getUserAccounts();
+        // SwipeRefreshLayout
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_blue_dark);
+        /**
+         * Showing Swipe Refresh animation on activity create
+         * As animation won't start on onCreate, post runnable is used
+         */
+        mSwipeRefreshLayout.post(new Runnable() {
+
+            @Override
+            public void run() {
+
+                mSwipeRefreshLayout.setRefreshing(true);
+            //fetch user accounts data from server
+                getUserAccounts();
+            }
+        });
+
+
 
         // return view to whichever activity calls this fragment
         return view;
@@ -85,17 +107,20 @@ public class UserAccountsFragment extends Fragment{
 
     // fetch user accounts from API
     public void getUserAccounts() {
-        final ProgressDialog progressDialog = new ProgressDialog(getContext());
-        progressDialog.setCanceledOnTouchOutside(false);
-        progressDialog.setMessage("Fetching Online Account(s).....");
-        progressDialog.show();
+//        final ProgressDialog progressDialog = new ProgressDialog(getContext());
+//        progressDialog.setCanceledOnTouchOutside(false);
+//        progressDialog.setMessage("Fetching Online Account(s).....");
+//        progressDialog.show();
+        // Showing refresh animation before making http call
+        mSwipeRefreshLayout.setRefreshing(true);
 
         // RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, API_ENDPOINT.USERACCOUNT_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        progressDialog.dismiss();
+                        // stop refreshing
+                        mSwipeRefreshLayout.setRefreshing(false);
                         try {
                             JSONObject jsonObject = new JSONObject(response);
                             if (!jsonObject.getBoolean("error")) {
@@ -133,10 +158,13 @@ public class UserAccountsFragment extends Fragment{
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        progressDialog.dismiss();
+                       // progressDialog.dismiss();
+
+                        // Stopping swipe refresh
+                        mSwipeRefreshLayout.setRefreshing(false);
                         error.printStackTrace();
                         Toast.makeText(getActivity().getApplicationContext(),
-                                "Oops! Check internet connection", Toast.LENGTH_SHORT).show();
+                                "Oops! Check internet connection and refresh", Toast.LENGTH_SHORT).show();
                     }
                 }) {
             @Override
@@ -161,5 +189,11 @@ public class UserAccountsFragment extends Fragment{
 
     }
 
+    @Override
+    public void onRefresh() {
+        //fetch user accounts data from server
+        getUserAccounts();
+
+    }
 }
 

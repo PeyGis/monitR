@@ -1,12 +1,18 @@
 package com.capstone.icoffie.monitr;
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -57,8 +63,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Toolbar toolbar;
     private Button takeAction;
     String userTokenExtra = "";
+    String accountNameExtra = "";
     private Map<String, LoginHistory> loginHistoryMap;
     final Context context = this;
+    public static final int LOCATION_REQUEST = 10;
+    LocationManager locationManager;
+    double latitude = 0.0;
+    double longitude = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +83,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //get bundle or extras from TRACK ACCOUNT activity
        Bundle bundle = getIntent().getExtras();
-        String accountNameExtra = bundle.getString("ACCOUNT_NAME");
-       userTokenExtra = bundle.getString("USER_TOKEN");
+        accountNameExtra = bundle.getString("ACCOUNT_NAME");
+        userTokenExtra = bundle.getString("USER_TOKEN");
 
         //init arrayList
         loginHistoryMap = new HashMap<>();
+
+        //initializa location manager
+        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+        getLocation(); // get user location
         //initialize map object
         initMap();
 
@@ -105,14 +120,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (googleMap != null){
                 mMap = googleMap;
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                mMap.setMinZoomPreference(8);
+                mMap.setMinZoomPreference(7);
                 mMap.setOnMarkerClickListener(this);
+                mMap.getUiSettings().setZoomControlsEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
                 //fetch login details from data model
                 getUserLoginHistory(userTokenExtra);
 
-               LatLng kwabenya = new LatLng(5.89800, -0.219751);
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(kwabenya));
+
+               LatLng userLocation = new LatLng(latitude, longitude);
+                drawCircle(userLocation);
+                mMap.addMarker(new MarkerOptions().title("My Current Location").position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))).setTag("0");
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
+
 
 
             }
@@ -125,15 +146,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    public void openDialog(){
+    public void openDialog(final String providerName, final String token){
         AlertDialog.Builder markerDialog = new AlertDialog.Builder(this);
         markerDialog.setTitle("Take Action");
         final String[] options = {"Logout", "Block Device", "Report"};
-        markerDialog.setIcon(R.drawable.appicon);
+        markerDialog.setIcon(R.drawable.ic_monitr);
         markerDialog.setItems(options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(getApplicationContext(), "Action Successful", Toast.LENGTH_SHORT).show();
+
+                if(which == 0){
+                    //call logout API
+                    terminateSession(providerName, token);
+                } else if (which ==1){
+                    showToast("Blocking device");
+                } else{
+                    showToast("Reporting to service provider");
+                }
             }
         });
 
@@ -144,101 +173,86 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onMarkerClick(final Marker marker) {
 
-        //inflate layout and get the dialog view
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.login_details_dialog, null);
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setView(view);
-       // builder.setCancelable(false);
-        builder.setIcon(R.drawable.ic_monitr);
-
-
-        //get view components by referencing id
-        TextView deviceNameTv = (TextView) view.findViewById(R.id.deviceNameTv);
-        TextView deviceIMETv = (TextView) view.findViewById(R.id.deviceIMETv);
-        TextView deviceLocationTv = (TextView) view.findViewById(R.id.locationTv);
-        TextView deviceDateTv = (TextView) view.findViewById(R.id.loginDateTv);
-        TextView deviceStatusTv = (TextView) view.findViewById(R.id.statusTv);
-        Button noBtn = (Button)view.findViewById(R.id.noBtn);
-        Button yesBtn = (Button)view.findViewById(R.id.yesBtn);
-
         //get Login history Object from marker
-        String markerId = marker.getId();
-        LoginHistory loginHistory = loginHistoryMap.get(markerId);
+        if(marker.getTag() != null && marker.getTag().equals("0")){
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 13));
+        } else {
 
-        //set data from marker object to view widgets or dialog
-        deviceNameTv.append(loginHistory.getDeviceName());
-        deviceIMETv.append(loginHistory.getDeviceIme());
-        deviceLocationTv.append(String.valueOf(loginHistory.getLatitude()) + ", " + String.valueOf(loginHistory.getLongitude()));
-        deviceDateTv.append(loginHistory.getDate());
-        deviceStatusTv.append(loginHistory.getStatus());
+            //inflate layout and get the dialog view
+            LayoutInflater inflater = LayoutInflater.from(context);
+            View view = inflater.inflate(R.layout.login_details_dialog, null);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setView(view);
+            builder.setCancelable(true);
+            builder.setIcon(R.drawable.ic_monitr);
 
-        // when user clicks no button, open a dialog so user can take action
-        noBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               openDialog();
-            }
-        });
 
-        //when user clicks yes button
-        yesBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder yesOption = new AlertDialog.Builder(context);
-                yesOption.setTitle("Adding Device");
-                yesOption.setCancelable(false);
-                yesOption.setIcon(R.drawable.ic_monitr);
-                yesOption.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+            //get view components by referencing id
+            TextView deviceNameTv = (TextView) view.findViewById(R.id.deviceNameTv);
+            TextView deviceIMETv = (TextView) view.findViewById(R.id.deviceIMETv);
+            TextView deviceLocationTv = (TextView) view.findViewById(R.id.locationTv);
+            TextView deviceDateTv = (TextView) view.findViewById(R.id.loginDateTv);
+            TextView deviceStatusTv = (TextView) view.findViewById(R.id.statusTv);
+            Button noBtn = (Button) view.findViewById(R.id.noBtn);
+            Button yesBtn = (Button) view.findViewById(R.id.yesBtn);
 
-                        showToast("Added Succesfully");
+            String markerId = marker.getId();
+            LoginHistory loginHistory = loginHistoryMap.get(markerId);
 
-                    }
-                }).setNegativeButton("Not Now", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+            //set data from marker object to view widgets or dialog
+            deviceNameTv.append(loginHistory.getDeviceName());
+            deviceIMETv.append(loginHistory.getDeviceIme());
+            deviceLocationTv.append(String.valueOf(loginHistory.getLatitude()) + ", " + String.valueOf(loginHistory.getLongitude()));
+            deviceDateTv.append(loginHistory.getDate());
+            deviceStatusTv.append(loginHistory.getStatus());
+            final String login_device_token = loginHistory.getToken();
 
-                // create alert dialog
-                AlertDialog yesalertDialog = yesOption.create();
-                // show alert
-                yesalertDialog.show();
+            // when user clicks no button, open a dialog so user can take action
+            noBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openDialog(accountNameExtra, login_device_token);
+                }
+            });
 
-            }
-        });
+            //when user clicks yes button
+            yesBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder yesOption = new AlertDialog.Builder(context);
+                    yesOption.setTitle("Add Device");
+                    yesOption.setMessage("Want to add this to your devices?");
+                    yesOption.setCancelable(false);
+                    yesOption.setIcon(R.drawable.ic_monitr);
+                    yesOption.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-        // create alert dialog
-        AlertDialog loginDetailsalertDialog = builder.create();
-        //alertDialog.setIcon(R.drawable.icon);
-        // show alert
-        loginDetailsalertDialog.show();
-//        AlertDialog.Builder markerDialog = new AlertDialog.Builder(this);
-//        markerDialog.setTitle("Take Action");
-//        final String[] options = {"Device", "Block Device", "Report"};
-//        markerDialog.setIcon(R.drawable.appicon);
-//        markerDialog.setItems(options, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                if(which == 0){
-//                    //marker.remove();
-//                    String markerTag = marker.getId();
-//                    showToast(loginHistoryMap.get(markerTag).getDeviceName());
-//                    //showToast(loginHistoryList.get(i).getDeviceName());
-//                }
-//                else if(which == 1) {
-//                    marker.remove();
-//                } else {
-//                    Toast.makeText(getApplicationContext(), "Report Sent Successfully", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
-//
-//        AlertDialog alertDialog = markerDialog.create();
-//        alertDialog.show();
+                            showToast("Device Added Succesfully");
+
+                        }
+                    }).setNegativeButton("Not Now", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    // create alert dialog
+                    AlertDialog yesalertDialog = yesOption.create();
+                    // show alert
+                    yesalertDialog.show();
+
+                }
+            });
+
+            // create alert dialog for the main view (login history dialog)
+            AlertDialog loginDetailsalertDialog = builder.create();
+            //alertDialog.setIcon(R.drawable.icon);
+            // show alert
+            loginDetailsalertDialog.show();
+
+        }
         return true;
     }
     private void drawCircle(LatLng point){
@@ -263,7 +277,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         switch (item.getItemId()){
             case R.id.set_geofence:
-                Toast.makeText(getApplicationContext(), "Setting Geofence", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), " Geofence Feature not implemented", Toast.LENGTH_SHORT).show();
                 return  true;
 
             default:
@@ -355,5 +369,87 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //requestQueue.add(stringRequest);
         SingletonApi.getClassinstance(getApplicationContext()).addToRequest(stringRequest);
 
+    }
+
+    private void getLocation() {
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST);
+        } else {
+            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if(location != null){
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+                showToast("Location found");
+            } else{
+                showToast("Couldnt get location");
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case LOCATION_REQUEST:
+                getLocation();
+                break;
+            default:
+                Log.d("LOCATION", "Location service");
+                break;
+        }
+    }
+
+
+    public void terminateSession(final String provider_name, final String login_device_token) {
+
+        final ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Logging Out This Device.....");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMessage("Just a few moment");
+        progressDialog.show();
+
+        // RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, API_ENDPOINT.LOGOUT_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        progressDialog.dismiss();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            if (!jsonObject.getBoolean("error")) {
+                                Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+
+                            } else if (jsonObject.getBoolean("error")) {
+                                Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        progressDialog.dismiss();
+                        error.printStackTrace();
+                        Toast.makeText(getApplicationContext(),
+                                "Oops! Check Your Internet Connection", Toast.LENGTH_SHORT).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                Map<String, String> params = new HashMap<>();
+                params.put("userToken", login_device_token);
+                params.put("providerName", provider_name);
+
+                return params;
+            }
+        };
+        //requestQueue.add(stringRequest);
+        SingletonApi.getClassinstance(getApplicationContext()).addToRequest(stringRequest);
     }
 }
