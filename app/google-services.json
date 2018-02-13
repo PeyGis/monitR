@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "303087041916",
+    "firebase_url": "https://monitr-ffb5c.firebaseio.com",
+    "project_id": "monitr-ffb5c",
+    "storage_bucket": "monitr-ffb5c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303087041916:android:cb22f0b3421002b2",
+        "android_client_info": {
+          "package_name": "com.capstone.icoffie.monitr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "303087041916-kvophd3d0ni8i5kdpvcrfi1dlep7qa0t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.capstone.icoffie.monitr",
+            "certificate_hash": "43bf9ce77d27f6e28da5a7f1f5039f38907f56d8"
+          }
+        },
+        {
+          "client_id": "303087041916-t75c95fd3ifpmcei74i75dnl98k82hnk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAePstbCKViYa7YgJR6UiIP5-MzDiBNaUg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "303087041916-t75c95fd3ifpmcei74i75dnl98k82hnk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

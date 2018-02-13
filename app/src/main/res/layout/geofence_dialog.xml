@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/login_details_root"
+    android:padding="@dimen/activity_horizontal_margin"
+    >
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Setting Geofence"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimaryDark"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_margin="10dp"/>
+    <SeekBar
+        android:id="@+id/seekbar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:max="150"/>
+
+    <TextView
+        android:id="@+id/locationTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Location: "
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_margin="10dp"/>
+    <TextView
+        android:id="@+id/distanceTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Distance: "
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_margin="10dp"/>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorPrimaryDark"
+        android:text="after setting your distance, click SUBMIT to save changes"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_margin="10dp"/>
+
+
+    <Button
+    android:id="@+id/saveGeofenceBtn"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/border2"
+    android:layout_marginStart="10dp"
+    android:text="SUBMIT" />
+
+
+</LinearLayout>

@@ -6,6 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -22,8 +24,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,24 +57,27 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
+
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapLongClickListener {
 
     private GoogleMap mMap;
     private Toolbar toolbar;
-    private Button takeAction;
     String userTokenExtra = "";
     String accountNameExtra = "";
     private Map<String, LoginHistory> loginHistoryMap;
     final Context context = this;
     public static final int LOCATION_REQUEST = 10;
     LocationManager locationManager;
-    double latitude = 0.0;
-    double longitude = 0.0;
+    double latitude = 7.24;
+    double longitude = -1.11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,10 +99,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //initializa location manager
         locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-        getLocation(); // get user location
+
+        if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER )) {
+            buildAlertMessageNoGps();
+        } else{
+            getLocation(); // get user location
+        }
+
         //initialize map object
         initMap();
-
     }
 
     public void initMap(){
@@ -124,13 +137,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMap.setOnMarkerClickListener(this);
                 mMap.getUiSettings().setZoomControlsEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                mMap.setOnMapLongClickListener(this);
 
                 //fetch login details from data model
                 getUserLoginHistory(userTokenExtra);
 
 
                LatLng userLocation = new LatLng(latitude, longitude);
-                drawCircle(userLocation);
+                drawCircle(userLocation, 1000);
                 mMap.addMarker(new MarkerOptions().title("My Current Location").position(userLocation).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))).setTag("0");
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
 
@@ -255,10 +269,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         return true;
     }
-    private void drawCircle(LatLng point){
+    private void drawCircle(LatLng point, int radius){
         CircleOptions circleOptions = new CircleOptions();
         circleOptions.center(point);
-        circleOptions.radius(1000);
+        circleOptions.radius(radius);
         circleOptions.strokeColor(Color.RED);
         circleOptions.strokeWidth(10);
 
@@ -377,9 +391,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST);
         } else {
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            Location location1 = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Location location2 = locationManager.getLastKnownLocation(LocationManager. PASSIVE_PROVIDER);
+
             if(location != null){
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
+                showToast("Location found");
+            } else if(location1 != null){
+                latitude = location1.getLatitude();
+                longitude = location1.getLongitude();
+                showToast("Location found");
+            } else if(location2 != null){
+                latitude = location2.getLatitude();
+                longitude = location2.getLongitude();
                 showToast("Location found");
             } else{
                 showToast("Couldnt get location");
@@ -451,5 +476,108 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         };
         //requestQueue.add(stringRequest);
         SingletonApi.getClassinstance(getApplicationContext()).addToRequest(stringRequest);
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        showToast("You touched: Lat " + latLng.latitude + " Lng: " + latLng.longitude);
+        displayGeofenceDialog(latLng);
+    }
+
+    // show alert daiglog to enable location
+    public void buildAlertMessageNoGps() {
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Please Turn ON your GPS Location")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    public void displayGeofenceDialog(LatLng latLng){
+
+        //inflate layout and get the dialog view
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.geofence_dialog, null);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setView(view);
+        builder.setCancelable(true);
+        builder.setIcon(R.drawable.ic_monitr);
+
+
+        //get view components by referencing id
+        TextView deviceLocationTv = (TextView) view.findViewById(R.id.locationTv);
+        final TextView distanceTv = (TextView) view.findViewById(R.id.distanceTv);
+        SeekBar seekBar = (SeekBar)view.findViewById(R.id.seekbar);
+        Button saveGeofence = (Button) view.findViewById(R.id.saveGeofenceBtn);
+
+        //seekbar
+        seekBar.setMax(1000);
+        seekBar.setProgress(100);
+        distanceTv.append(String.valueOf(seekBar.getProgress()) + " meters");
+
+
+        // perform seek bar change listener event used for getting the progress value
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            int progressChangedValue = 0;
+
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                progressChangedValue = progress;
+            }
+
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // TODO Auto-generated method stub
+            }
+
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                distanceTv.setText("Distance: " + String.valueOf(progressChangedValue) + " meters");
+                //distanceTv.append(String.valueOf(progressChangedValue) + "meters");
+
+                Toast.makeText(MapsActivity.this, "Seek bar progress is :" + progressChangedValue,
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+        try {
+            List<Address> listAddresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+            if(null!=listAddresses&&listAddresses.size()>0){
+                String locality = listAddresses.get(0).getAddressLine(0);
+                if(locality.isEmpty()){
+                    deviceLocationTv.append(String.valueOf(latLng.latitude) + ", " + String.valueOf(latLng.longitude));
+                } else{
+                    deviceLocationTv.append(locality);
+                }
+
+            } else{
+                deviceLocationTv.append(String.valueOf(latLng.latitude) + ", " + String.valueOf(latLng.longitude));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // when user clicks no button, open a dialog so user can take action
+        saveGeofence.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        // create alert dialog for the main view (login history dialog)
+        AlertDialog geofenceAlertDialog = builder.create();
+        //alertDialog.setIcon(R.drawable.icon);
+        // show alert
+        geofenceAlertDialog.show();
     }
 }

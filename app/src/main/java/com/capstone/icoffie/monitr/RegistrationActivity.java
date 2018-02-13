@@ -16,6 +16,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.capstone.icoffie.monitr.model.API_ENDPOINT;
+import com.capstone.icoffie.monitr.model.SharedPrefManager;
 import com.capstone.icoffie.monitr.model.SingletonApi;
 
 import org.json.JSONException;
@@ -36,6 +37,7 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
+        makeToast(SharedPrefManager.getClassinstance(this).getDeviceToken());
         //get views by id
         loginBtn = (TextView) findViewById(R.id.loginBtn);
         signupBtn = (Button) findViewById(R.id.signupBtn);
@@ -152,7 +154,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 params.put("username",uname);
                 params.put("email", email);
                 params.put("password", password);
-
+                params.put("fcm_token", SharedPrefManager.getClassinstance(getApplicationContext()).getDeviceToken());
                 return params;
             }
         };

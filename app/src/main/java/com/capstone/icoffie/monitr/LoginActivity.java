@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         if(SharedPrefManager.getClassinstance(this).isLoggedIn()){
             finish();
             startActivity(new Intent(LoginActivity.this, UserDashBoardActivity.class));
@@ -151,4 +153,7 @@ public class LoginActivity extends AppCompatActivity {
         SingletonApi.getClassinstance(getApplicationContext()).addToRequest(stringRequest);
     }
 
+    public void makeToast(String message){
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
 }

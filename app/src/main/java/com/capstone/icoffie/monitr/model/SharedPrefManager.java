@@ -14,6 +14,7 @@ public class SharedPrefManager {
     private static final String KEY_USER_EMAIL = "Email";
     private static final String KEY_USER_ID = "User_Id";
     private static final String KEY_USER_STATUS = "Status";
+    private static final String FCM_TOKEN = "fcmtoken";
 
     private  static SharedPrefManager classinstance;
     private static Context context;
@@ -38,6 +39,16 @@ public class SharedPrefManager {
         return  true;
     }
 
+    public boolean saveFirebaseDeviceToken( String token)
+    {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        editor.putString(FCM_TOKEN, token);
+        editor.apply();
+        return  true;
+    }
+
     public boolean isLoggedIn()
     {
         SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
@@ -51,7 +62,11 @@ public class SharedPrefManager {
     {
         SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.clear();
+        editor.remove(KEY_USER_ID);
+        editor.remove(KEY_USER_NAME);
+        editor.remove(KEY_USER_EMAIL);
+        editor.remove(KEY_USER_STATUS);
+       // editor.clear();
         editor.apply();
 
         return true;
@@ -84,5 +99,11 @@ public class SharedPrefManager {
     public String getUserStatus() {
         SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         return sharedPreferences.getString(KEY_USER_STATUS, "Active");
+    }
+
+    //this method will fetch the device token from shared preferences
+    public String getDeviceToken(){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        return  sharedPreferences.getString(FCM_TOKEN, null);
     }
 }
