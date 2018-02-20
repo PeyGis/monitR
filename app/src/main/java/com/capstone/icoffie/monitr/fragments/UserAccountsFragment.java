@@ -2,9 +2,14 @@ package com.capstone.icoffie.monitr.fragments;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
@@ -93,13 +98,26 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
             @Override
             public void run() {
 
-                mSwipeRefreshLayout.setRefreshing(true);
-            //fetch user accounts data from server
-                getUserAccounts();
+                //detect network
+                if(!isConnectedToNetwork()){
+                    Snackbar mSnackbar = Snackbar.make(view, "No Internet Connection", Snackbar.LENGTH_LONG)
+                            .setAction("RETRY", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
+                                }
+                            });
+                    // Changing message text color
+                    mSnackbar.setActionTextColor(Color.RED);
+                    mSnackbar.show();
+                } else{
+                    mSwipeRefreshLayout.setRefreshing(true);
+                    //fetch user accounts data from server
+                    getUserAccounts();
+                }
+
             }
         });
-
-
 
         // return view to whichever activity calls this fragment
         return view;
@@ -186,7 +204,6 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
     public void showToast(String msg){
         Toast.makeText(getActivity().getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
 
-
     }
 
     @Override
@@ -194,6 +211,19 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
         //fetch user accounts data from server
         getUserAccounts();
 
+    }
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    public boolean isConnectedToNetwork(){
+        ConnectivityManager connectivityManager = (ConnectivityManager)getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return (networkInfo != null && networkInfo.isConnectedOrConnecting());
     }
 }
 

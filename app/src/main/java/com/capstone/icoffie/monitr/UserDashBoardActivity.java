@@ -1,9 +1,14 @@
 package com.capstone.icoffie.monitr;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -17,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.capstone.icoffie.monitr.fragments.UserAccountsFragment;
@@ -30,6 +36,7 @@ public class UserDashBoardActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private View headerView;
     private TextView welcomeUserTv;
+    private LinearLayout linearLayout;
 
 
     @Override
@@ -55,22 +62,20 @@ public class UserDashBoardActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+            //displays default fragment
+            Fragment defaultFragment = new UserAccountsFragment();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fragmentarea, defaultFragment);
+            fragmentTransaction.commit();
 
-        //displays default fragment
-        Fragment defaultFragment = new UserAccountsFragment();
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragmentarea, defaultFragment);
-        fragmentTransaction.commit();
+            //navigation item
+            navigationView = (NavigationView) findViewById(R.id.navigationView);
+            headerView = navigationView.getHeaderView(0);
 
-        //navigation item
-        navigationView = (NavigationView) findViewById(R.id.navigationView);
-        headerView = navigationView.getHeaderView(0);
-
-        welcomeUserTv = (TextView) headerView.findViewById(R.id.welcomename);
-        welcomeUserTv.setText("Welcome " + SharedPrefManager.getClassinstance(this).getUserName());
-        setUpDrawerContent(navigationView);
-
+            welcomeUserTv = (TextView) headerView.findViewById(R.id.welcomename);
+            welcomeUserTv.setText("Welcome " + SharedPrefManager.getClassinstance(this).getUserName());
+            setUpDrawerContent(navigationView);
     }
 
     @Override
@@ -167,5 +172,4 @@ public class UserDashBoardActivity extends AppCompatActivity {
             }
         }
     }
-
 }

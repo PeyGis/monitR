@@ -54,7 +54,7 @@ public class TrackAccount extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         final String accountNameExtra = bundle.getString("ACCOUNT_NAME");
         String accountTaglineExtra = bundle.getString("ACCOUNT_TAGLINE");
-        String accountIdExtra = bundle.getString("ACCOUNT_ID");
+        final String accountIdExtra = bundle.getString("ACCOUNT_ID");
         String userAccountIdExtra = bundle.getString("USER_ACCOUNT_ID");
         final String userTokenExtra = bundle.getString("USER_TOKEN");
 
@@ -88,6 +88,7 @@ public class TrackAccount extends AppCompatActivity {
                 Intent mapIntent = new Intent(TrackAccount.this, MapsActivity.class);
                 mapIntent.putExtra("ACCOUNT_NAME", accountNameExtra);
                 mapIntent.putExtra("USER_TOKEN", userTokenExtra);
+                mapIntent.putExtra("ACCOUNT_ID", accountIdExtra);
                 startActivity(mapIntent);
 
             }

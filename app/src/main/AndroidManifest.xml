@@ -3,6 +3,7 @@
     package="com.capstone.icoffie.monitr">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -20,7 +21,8 @@
         android:theme="@style/AppTheme">
         <activity android:name=".LoginActivity">
         </activity>
-        <activity android:name=".UserDashBoardActivity" />
+        <activity android:name=".UserDashBoardActivity"
+            android:launchMode="singleTop"/>
         <activity android:name=".RegistrationActivity" />
         <activity
             android:name=".TrackAccount"
@@ -89,6 +91,20 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
+
+        <service
+            android:name=".model.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+
+        </service>
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_notification" />
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/colorAccent" />
 
     </application>
 

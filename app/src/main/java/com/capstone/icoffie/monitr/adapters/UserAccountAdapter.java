@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.capstone.icoffie.monitr.MapsActivity;
 import com.capstone.icoffie.monitr.R;
 import com.capstone.icoffie.monitr.TrackAccount;
 import com.capstone.icoffie.monitr.model.UserAccountModel;
@@ -77,7 +78,7 @@ public class UserAccountAdapter extends RecyclerView.Adapter<UserAccountAdapter.
         holder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent myIntent = new Intent(v.getContext(), TrackAccount.class);
+                Intent myIntent = new Intent(v.getContext(), MapsActivity.class);
                 myIntent.putExtra("ACCOUNT_NAME", userAccount.getAccountName());
                 myIntent.putExtra("ACCOUNT_TAGLINE", userAccount.getAccountTagline());
                 myIntent.putExtra("ACCOUNT_ID", userAccount.getAccountId());
