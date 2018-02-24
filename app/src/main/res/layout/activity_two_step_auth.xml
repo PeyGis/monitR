@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_settings"
+    android:id="@+id/activity_authentication"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#e3e3e3"
-    android:orientation="vertical"
-    tools:context="com.capstone.icoffie.monitr.Settings">
+    tools:context="com.capstone.icoffie.monitr.TwoStepAuthActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <include layout="@layout/nav_actionbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
@@ -21,59 +20,44 @@
             android:id="@+id/textAccountName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Improve Security Settings"
+            android:text="Two-Step Authentication"
             android:textColor="@color/colorPrimaryDark"
             android:layout_gravity="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            android:id="@+id/logo"
+            android:layout_margin="10dp"
+            android:src="@drawable/two_step"
+            android:layout_gravity="center"/>
 
         <TextView
             android:id="@+id/textAccountTagline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Let's GO"
+            android:text="For added security, enable two-step authentication, which will require a 6 digit PIN to access your account the next time you visit monitR"
             android:layout_gravity="center"
-            android:layout_marginTop="5dp"
+            android:layout_margin="15dp"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
 
 
         <Button
             android:background="@color/colorPrimary"
-            android:id="@+id/two_step_auth"
-            android:layout_width="match_parent"
+            android:id="@+id/btnEnable"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Two Step Authentication"
+            android:text="Enable"
             android:textColor="@color/colorWhite"
             android:layout_marginTop="80dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
+            android:layout_gravity="center"
             android:padding="@dimen/activity_horizontal_margin"
             />
-        <Button
-            android:background="@color/colorJumia"
-            android:id="@+id/manage_synced_account"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Manage Synced Accounts"
-            android:textColor="@color/colorWhite"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:padding="@dimen/activity_horizontal_margin"
-            />
-        <Button
-            android:background="@color/colorAccent"
-            android:id="@+id/delete_monitr"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Delete My Account"
-            android:textColor="@color/colorWhite"
-            android:layout_marginTop="@dimen/activity_horizontal_margin"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:padding="@dimen/activity_horizontal_margin"
-            />
-
     </LinearLayout>
+
 
 
 </ScrollView>

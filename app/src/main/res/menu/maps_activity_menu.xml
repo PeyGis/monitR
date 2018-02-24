@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MapsActivity"
+    >
+
+    <item android:id="@+id/set_geofence"
+        android:title="Set Geofence"
+        app:showAsAction="always"
+        android:icon="@mipmap/ic_geofence"></item>
+
+            <item android:id="@+id/my_goefences"
+                android:title="Manage Geofence"
+                android:icon="@mipmap/ic_geofence"></item>
+            <item android:id="@+id/my_devices"
+                android:title="My Devices"
+                android:icon="@mipmap/ic_devices"></item>
+            <item android:id="@+id/help"
+                android:title="Help"
+                android:icon="@mipmap/ic_help"></item>
+            <item android:id="@+id/maps_logout"
+                android:title="Exit"
+                android:icon="@mipmap/ic_exit"></item>
+
+</menu>

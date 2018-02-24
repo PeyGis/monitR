@@ -1,10 +1,10 @@
 package com.capstone.icoffie.monitr.fragments;
 
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -12,12 +12,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,11 +28,10 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.capstone.icoffie.monitr.LoginActivity;
 import com.capstone.icoffie.monitr.R;
 import com.capstone.icoffie.monitr.ServiceProvidersActivity;
-import com.capstone.icoffie.monitr.TrackAccount;
-import com.capstone.icoffie.monitr.UserDashBoardActivity;
+import com.capstone.icoffie.monitr.adapters.EmptyRecyclerViewAdapter;
+import com.capstone.icoffie.monitr.adapters.GenericRecyclerViewAdaper;
 import com.capstone.icoffie.monitr.adapters.UserAccountAdapter;
 import com.capstone.icoffie.monitr.model.API_ENDPOINT;
 import com.capstone.icoffie.monitr.model.SharedPrefManager;
@@ -50,9 +51,11 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private View view;
-    private TextView txtUserName;
+    private TextView txtUserName, emptyView;
     private FloatingActionButton fab;
     private ArrayList<UserAccountModel> userAccountModelArrayList;
+    final Context context = getContext();
+    ConnectivityManager connectivityManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,7 +69,9 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
 
-        //set welcome user name textview
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+//set welcome user name textview
         txtUserName = (TextView)view.findViewById(R.id.userName);
         txtUserName.append(SharedPrefManager.getClassinstance(getContext()).getUserName());
 
@@ -118,8 +123,6 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
 
             }
         });
-
-        // return view to whichever activity calls this fragment
         return view;
     }
 
@@ -144,27 +147,30 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
                             if (!jsonObject.getBoolean("error")) {
 
                                 JSONArray userAccounts = jsonObject.getJSONArray("myaccounts");
-                                for(int i=0; i < userAccounts.length(); i++) {
-                                    JSONObject oneAccount = userAccounts.getJSONObject(i);
+                                    for(int i=0; i < userAccounts.length(); i++) {
+                                        JSONObject oneAccount = userAccounts.getJSONObject(i);
 
-                                    UserAccountModel onlineAccount = new UserAccountModel(
-                                            oneAccount.getString("Account_Name"),
-                                            oneAccount.getString("Account_Tagline"),
-                                            oneAccount.getString("Online_Account_Id"),
-                                            oneAccount.getString("User_Online_Account_Id"),
-                                            oneAccount.getString("User_Token"));
+                                        UserAccountModel onlineAccount = new UserAccountModel(
+                                                oneAccount.getString("Account_Name"),
+                                                oneAccount.getString("Account_Tagline"),
+                                                oneAccount.getString("Online_Account_Id"),
+                                                oneAccount.getString("User_Online_Account_Id"),
+                                                oneAccount.getString("User_Token"));
+                                        if(!isInList(oneAccount.getString("Online_Account_Id"))){
+                                            userAccountModelArrayList.add(onlineAccount);
+                                        }
 
-                                    userAccountModelArrayList.add(onlineAccount);
-                                }
-                                //set recyclerview adapter
-                                adapter = new UserAccountAdapter(userAccountModelArrayList, getActivity().getApplicationContext());
+                                    }
+                                    //set recyclerview adapter
+                                   // adapter = new UserAccountAdapter(userAccountModelArrayList, getActivity().getApplicationContext());
+                                adapter = new GenericRecyclerViewAdaper(userAccountModelArrayList, null, getActivity().getApplicationContext(), 1);
+                                    recyclerView.setAdapter(adapter);
+                                //Toast.makeText(getActivity().getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+
+                            } else {
+                                adapter = new EmptyRecyclerViewAdapter("You haven't synced any account yet. click on the circular orange icon to syn now");
                                 recyclerView.setAdapter(adapter);
-                                Toast.makeText(getActivity().getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
-
-                            } else if (jsonObject.getBoolean("error")) {
-                                Toast.makeText(getActivity().getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
-                            } else{
-                                // do nothing
+                                //Toast.makeText(getActivity().getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
                             }
 
                         } catch (JSONException e) {
@@ -176,10 +182,11 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                       // progressDialog.dismiss();
-
                         // Stopping swipe refresh
                         mSwipeRefreshLayout.setRefreshing(false);
+                        adapter = new EmptyRecyclerViewAdapter("Error Occurred. Check interent and refresh");
+                        recyclerView.setAdapter(adapter);
+
                         error.printStackTrace();
                         Toast.makeText(getActivity().getApplicationContext(),
                                 "Oops! Check internet connection and refresh", Toast.LENGTH_SHORT).show();
@@ -213,17 +220,29 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
 
     }
 
-
-
     @Override
     public void onResume() {
         super.onResume();
     }
 
     public boolean isConnectedToNetwork(){
-        ConnectivityManager connectivityManager = (ConnectivityManager)getActivity().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnectedOrConnecting());
+        if(getActivity() != null){
+            this.connectivityManager = (ConnectivityManager)getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            return (networkInfo != null && networkInfo.isConnectedOrConnecting());
+        }
+        return false;
+
+    }
+
+    private boolean isInList(String key){
+
+        for(UserAccountModel userAccountModel : userAccountModelArrayList){
+            if(userAccountModel.getAccountId().equals(key)){
+                return true;
+            }
+        }
+        return false;
     }
 }
 

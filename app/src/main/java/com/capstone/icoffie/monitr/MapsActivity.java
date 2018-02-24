@@ -15,7 +15,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.*;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -30,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -43,12 +41,10 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
-import com.capstone.icoffie.monitr.adapters.UserAccountAdapter;
 import com.capstone.icoffie.monitr.model.API_ENDPOINT;
 import com.capstone.icoffie.monitr.model.LoginHistory;
 import com.capstone.icoffie.monitr.model.SharedPrefManager;
 import com.capstone.icoffie.monitr.model.SingletonApi;
-import com.capstone.icoffie.monitr.model.UserAccountModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -65,13 +61,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapLongClickListener {
 
@@ -247,7 +240,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             //set data from marker object to view widgets or dialog
             deviceNameTv.append(loginHistory.getDeviceName());
             deviceIMETv.append(loginHistory.getDeviceIme());
-            deviceLocationTv.append(String.valueOf(loginHistory.getLatitude()) + ", " + String.valueOf(loginHistory.getLongitude()));
+            LatLng latLng = new LatLng(loginHistory.getLatitude(), loginHistory.getLongitude());
+            //deviceLocationTv.append(String.valueOf(loginHistory.getLatitude()) + ", " + String.valueOf(loginHistory.getLongitude()));
+            deviceLocationTv.append(getCity(latLng));
             deviceDateTv.append(loginHistory.getDate());
             deviceStatusTv.append(loginHistory.getStatus());
             final String login_device_token = loginHistory.getToken();
@@ -321,7 +316,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.geofence_menu, menu);
+        menuInflater.inflate(R.menu.maps_activity_menu, menu);
         return true;
     }
 
@@ -333,8 +328,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Toast.makeText(getApplicationContext(), "Long press on the Map to set Geofence", Toast.LENGTH_LONG).show();
                 return  true;
 
-            case R.id.login_activity:
-                Toast.makeText(getApplicationContext(), "Current Activity", Toast.LENGTH_SHORT).show();
+            case R.id.maps_logout:
+                //SharedPrefManager.getClassinstance(getApplicationContext()).logout();
+                finish();
                 return  true;
 
             case R.id.my_devices:
@@ -342,10 +338,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //mapIntent.putExtra("ACCOUNT_NAME", accountNameExtra);
                 //mapIntent.putExtra("USER_TOKEN", userTokenExtra);
                 startActivity(devicesIntent);
-                return  true;
-
-            case R.id.add_device:
-                addDeviceManual();
                 return  true;
 
             case R.id.help:
@@ -617,24 +609,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-//        Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-//        try {
-//            List<Address> listAddresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-//            if(null!=listAddresses&&listAddresses.size()>0){
-//                String locality = listAddresses.get(0).getAddressLine(0);
-//                if(locality.isEmpty()){
-//                    deviceLocationTv.append(String.valueOf(latLng.latitude) + ", " + String.valueOf(latLng.longitude));
-//                } else{
-//                    deviceLocationTv.append(locality);
-//                }
-//
-//            } else{
-//                deviceLocationTv.append(String.valueOf(latLng.latitude) + ", " + String.valueOf(latLng.longitude));
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
          //when user clicks no button, open a dialog so user can take action
         saveGeofence.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -837,5 +811,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             deviceUniqueIdentifier = android.provider.Settings.System.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
         return deviceUniqueIdentifier;
+    }
+
+    public String getCity(LatLng latLng){
+        String toReturn = "";
+                Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+        try {
+            List<Address> listAddresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+            if(null!=listAddresses&&listAddresses.size()>0){
+                String locality = listAddresses.get(0).getAddressLine(0);
+                if(locality.isEmpty()){
+                    toReturn = (String.valueOf(latLng.latitude) + ", " + String.valueOf(latLng.longitude));
+                } else{
+                    toReturn =locality;
+                }
+
+            } else{
+                toReturn = (String.valueOf(latLng.latitude) + ", " + String.valueOf(latLng.longitude));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return toReturn;
     }
 }

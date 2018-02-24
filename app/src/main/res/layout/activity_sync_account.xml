@@ -4,7 +4,7 @@
     android:id="@+id/activity_sync_account"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorBack"
     tools:context="com.capstone.icoffie.monitr.SyncAccountActivity">
 
     <LinearLayout
@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="100dp"
             android:id="@+id/logo"
-            android:src="@drawable/icon"
+            android:src="@drawable/ic_monitr"
             android:layout_gravity="center"
             android:layout_marginTop="@dimen/activity_horizontal_margin"/>
 

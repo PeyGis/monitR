@@ -21,18 +21,6 @@
             android:id="@+id/fragmentarea"
             android:layout_width="match_parent"
             android:layout_height="match_parent"></FrameLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/txt"
-            android:textSize="24sp"
-            android:textColor="@color/colorAccent"
-            android:text="Welcome User"
-            android:textAlignment="center"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="200dp"
-            />
     </LinearLayout>
 
     <android.support.design.widget.NavigationView

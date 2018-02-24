@@ -29,6 +29,7 @@ public class UserAccountAdapter extends RecyclerView.Adapter<UserAccountAdapter.
     private int jumia = R.mipmap.ic_jumia;
     private int ecobank = R.mipmap.ic_ecobank;
     private int moodle = R.mipmap.ic_moodle;
+    private static final int EMPTY_VIEW = 10;
 
     //constructor to be used in main activity to get data and context
     public UserAccountAdapter(ArrayList<UserAccountModel> userAccountModelArrayList, Context context) {
@@ -46,13 +47,14 @@ public class UserAccountAdapter extends RecyclerView.Adapter<UserAccountAdapter.
     // get item selected and bind data to view
     @Override
     public void onBindViewHolder(UserAccountAdapter.ViewHolder holder, int position) {
+
         final UserAccountModel userAccount = userAccountModelArrayList.get(position);
         holder.accountName.setText(userAccount.getAccountName());
         holder.accountTagline.setText(userAccount.getAccountTagline());
 
         // setting appropriate imgae for an online account
         int accountId = Integer.parseInt(userAccount.getAccountId());
-        switch (accountId){
+        switch (accountId) {
             case 1:
                 holder.accountImage.setImageResource(ecobank);
                 break;
@@ -96,7 +98,13 @@ public class UserAccountAdapter extends RecyclerView.Adapter<UserAccountAdapter.
         return userAccountModelArrayList.size();
     }
 
-// an inner class that represents the user_account_list_item xml layout
+    @Override
+    public int getItemViewType(int position) {
+        if (userAccountModelArrayList.isEmpty()){ return EMPTY_VIEW; }
+        return super.getItemViewType(position);
+    }
+
+    // an inner class that represents the user_account_list_item xml layout
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         //define view components
@@ -114,4 +122,5 @@ public class UserAccountAdapter extends RecyclerView.Adapter<UserAccountAdapter.
 
         }
     }
+
 }

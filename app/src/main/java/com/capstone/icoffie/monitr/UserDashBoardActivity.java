@@ -3,6 +3,7 @@ package com.capstone.icoffie.monitr;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -72,9 +73,6 @@ public class UserDashBoardActivity extends AppCompatActivity {
             //navigation item
             navigationView = (NavigationView) findViewById(R.id.navigationView);
             headerView = navigationView.getHeaderView(0);
-
-            welcomeUserTv = (TextView) headerView.findViewById(R.id.welcomename);
-            welcomeUserTv.setText("Welcome " + SharedPrefManager.getClassinstance(this).getUserName());
             setUpDrawerContent(navigationView);
     }
 
@@ -109,6 +107,12 @@ public class UserDashBoardActivity extends AppCompatActivity {
                 break;
             case R.id.nav_settings:
                 startActivity(new Intent(UserDashBoardActivity.this, Settings.class));
+                break;
+            case R.id.nav_profile:
+                startActivity(new Intent(UserDashBoardActivity.this, ProfileActivity.class));
+                break;
+            case R.id.manage_devices:
+                startActivity(new Intent(UserDashBoardActivity.this, ViewDevicesActivity.class));
                 break;
             case R.id.nav_logout:
                 logout();
@@ -171,5 +175,11 @@ public class UserDashBoardActivity extends AppCompatActivity {
                 item.setChecked(false);
             }
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        // TODO Auto-generated method stub
+        super.onConfigurationChanged(newConfig);
     }
 }

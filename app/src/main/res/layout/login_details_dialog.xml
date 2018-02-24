@@ -26,7 +26,7 @@
         android:id="@+id/deviceIMETv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Device IME: "
+        android:text="Device IMEI: "
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_margin="10dp"/>
 
