@@ -10,6 +10,25 @@ public class UserDeviceModel {
     private String deviceType;
     private String accountId;
 
+    public UserDeviceModel(String deviceName, String deviceIMEI, String deviceType, String accountId, String deviceId) {
+        this.deviceName = deviceName;
+        this.deviceIMEI = deviceIMEI;
+        this.deviceType = deviceType;
+        this.accountId = accountId;
+        this.deviceId = deviceId;
+    }
+
+    public String getDeviceId() {
+
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    private String deviceId;
+
     public UserDeviceModel(String deviceName, String deviceIMEI, String deviceType, String accountId) {
         this.deviceName = deviceName;
         this.deviceIMEI = deviceIMEI;

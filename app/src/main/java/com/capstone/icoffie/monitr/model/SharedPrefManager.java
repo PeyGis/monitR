@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 /**
  * Created by iCoffie on 10/3/2017.
+ * This class manages user session
  */
 
 public class SharedPrefManager {
@@ -15,6 +16,7 @@ public class SharedPrefManager {
     private static final String KEY_USER_ID = "User_Id";
     private static final String KEY_USER_STATUS = "Status";
     private static final String FCM_TOKEN = "fcmtoken";
+    private static final String KEY_USER_PIN = "User_PIN";
 
     private  static SharedPrefManager classinstance;
     private static Context context;
@@ -48,7 +50,20 @@ public class SharedPrefManager {
         editor.apply();
         return  true;
     }
+    public boolean saveUserPIN( String pin)
+    {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
 
+        editor.putString(KEY_USER_PIN, pin);
+        editor.apply();
+        return  true;
+    }
+
+    /**
+     * A function to check if user is logged in
+     * @return true or false
+     */
     public boolean isLoggedIn()
     {
         SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
@@ -58,6 +73,10 @@ public class SharedPrefManager {
         return false;
     }
 
+    /**
+     * a function to log user out
+     * @return ture or false
+     */
     public boolean logout()
     {
         SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
@@ -72,6 +91,11 @@ public class SharedPrefManager {
         return true;
     }
 
+    /**
+     *
+     * @param mycontext content
+     * @return an instance of this class
+     */
     public static synchronized SharedPrefManager getClassinstance(Context mycontext)
     {
         if (classinstance == null)
@@ -105,5 +129,11 @@ public class SharedPrefManager {
     public String getDeviceToken(){
         SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         return  sharedPreferences.getString(FCM_TOKEN, null);
+    }
+
+    //this method will fetch the device token from shared preferences
+    public String getUserPin(){
+        SharedPreferences sharedPreferences = context.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        return  sharedPreferences.getString(KEY_USER_PIN, null);
     }
 }

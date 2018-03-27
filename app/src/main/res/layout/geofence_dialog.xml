@@ -11,7 +11,7 @@
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Setting Geofence"
+        android:text="Add Geofence"
         android:textAlignment="center"
         android:textColor="@color/colorAccent"
         android:background="@color/colorWhite"

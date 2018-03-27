@@ -2,6 +2,7 @@ package com.capstone.icoffie.monitr.model;
 
 /**
  * Created by iCoffie on 10/3/2017.
+ * This class contains URLs to the APIs
  */
 
 public class API_ENDPOINT {
@@ -10,5 +11,5 @@ public class API_ENDPOINT {
     public static  final String LOGOUT_URL = "https://reportr.000webhostapp.com/monitR/API/logoutAPI.php";
     public static  final String USERACCOUNT_URL = "https://reportr.000webhostapp.com/monitR/API/onlineAccountAPI.php";
     public static  final String USERSECURITY_URL = "https://reportr.000webhostapp.com/monitR/API/userSecurityAPI.php";
-    public static  final String USER_LOGIN_HISTORY_URL = "https://jumiademo.000webhostapp.com/Jumia/API/serviceIntegration.php";
+    public static  final String USER_LOGIN_HISTORY_URL = "https://reportr.000webhostapp.com/monitR/API/loginHistoryAPI.php";
 }

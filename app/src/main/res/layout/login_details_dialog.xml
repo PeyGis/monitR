@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/login_details_root"
     >
-
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
     <TextView
         android:id="@+id/textView1"
         android:layout_width="match_parent"
@@ -63,31 +65,34 @@
 
 
     <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:weightSum="2"
-    android:layout_margin="10dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_margin="10dp">
 
-    <Button
-    android:id="@+id/noBtn"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/border2"
-    android:layout_weight="1"
-    android:layout_marginEnd="1dp"
-    android:text="NO"/>
+        <Button
+            android:id="@+id/noBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border2"
+            android:layout_weight="1"
+            android:layout_marginEnd="1dp"
+            android:text="NO"/>
 
-    <Button
-    android:id="@+id/yesBtn"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/border2"
-    android:layout_weight="1"
-    android:layout_marginStart="10dp"
-    android:text="YES"/>
+        <Button
+            android:id="@+id/yesBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border2"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:text="YES"/>
 
 
     </LinearLayout>
 
 </LinearLayout>
+
+
+</ScrollView>

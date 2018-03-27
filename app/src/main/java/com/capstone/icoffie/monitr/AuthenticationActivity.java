@@ -9,6 +9,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.capstone.icoffie.monitr.model.SharedPrefManager;
+
 public class AuthenticationActivity extends AppCompatActivity {
     EditText six_digit_pin;
     Button btnNext;
@@ -26,9 +28,23 @@ public class AuthenticationActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(six_digit_pin.getText().length() == 6){
                     String pin = six_digit_pin.getText().toString();
-                    Intent intent = new Intent(getApplicationContext(), ConfirmPINActivity.class);
-                    intent.putExtra("SIX_DIGIT_PIN", pin);
-                    startActivity(intent);
+
+                    if(SharedPrefManager.getClassinstance(getApplicationContext()).getUserPin() != null){
+                        String sharedpref_pin = SharedPrefManager.getClassinstance(getApplicationContext()).getUserPin();
+                        if(Integer.parseInt(six_digit_pin.getText().toString()) == Integer.parseInt(sharedpref_pin)){
+                            Intent intent = new Intent(getApplicationContext(), UserDashBoardActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else{
+                            showToast("PIN didn't match");
+                        }
+                    } else{
+                        Intent intent = new Intent(getApplicationContext(), ConfirmPINActivity.class);
+                        intent.putExtra("SIX_DIGIT_PIN", pin);
+                        startActivity(intent);
+                        finish();
+                    }
+
                 } else{
                     showToast("PIN must be of 6 digit length");
                 }
@@ -37,6 +53,6 @@ public class AuthenticationActivity extends AppCompatActivity {
         });
     }
     private void showToast(String msg){
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 }

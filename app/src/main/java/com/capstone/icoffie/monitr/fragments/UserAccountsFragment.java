@@ -102,25 +102,9 @@ public class UserAccountsFragment extends Fragment implements SwipeRefreshLayout
 
             @Override
             public void run() {
-
-                //detect network
-                if(!isConnectedToNetwork()){
-                    Snackbar mSnackbar = Snackbar.make(view, "No Internet Connection", Snackbar.LENGTH_LONG)
-                            .setAction("RETRY", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    startActivity(new Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS));
-                                }
-                            });
-                    // Changing message text color
-                    mSnackbar.setActionTextColor(Color.RED);
-                    mSnackbar.show();
-                } else{
-                    mSwipeRefreshLayout.setRefreshing(true);
-                    //fetch user accounts data from server
-                    getUserAccounts();
-                }
-
+                mSwipeRefreshLayout.setRefreshing(true);
+                //fetch user accounts data from server
+                getUserAccounts();
             }
         });
         return view;

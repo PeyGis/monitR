@@ -37,15 +37,15 @@
 
 
         <Button
-        android:background="@color/colorGoogle"
+        android:background="@color/colorPrimaryDark"
         android:id="@+id/actGoogle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Google Account"
+        android:text="easy-Pay"
         android:textColor="@color/colorWhite"
         android:layout_marginTop="80dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:padding="@dimen/activity_horizontal_margin"
         />
         <Button
@@ -53,7 +53,7 @@
         android:id="@+id/actJumia"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Jumia Online Shopping"
+        android:text="Shoppn Online"
         android:textColor="@color/colorWhite"
         android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:layout_marginLeft="30dp"
@@ -65,7 +65,7 @@
             android:id="@+id/actFidelity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Fidelity MOBILE BANKING"
+            android:text="Bankex Mobile Banking"
             android:textColor="@color/colorWhite"
             android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:layout_marginLeft="30dp"

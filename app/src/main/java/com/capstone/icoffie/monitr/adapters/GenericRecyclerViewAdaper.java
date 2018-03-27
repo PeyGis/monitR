@@ -1,5 +1,6 @@
 package com.capstone.icoffie.monitr.adapters;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -14,12 +15,27 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.capstone.icoffie.monitr.MapsActivity;
 import com.capstone.icoffie.monitr.R;
+import com.capstone.icoffie.monitr.ViewDevicesActivity;
+import com.capstone.icoffie.monitr.model.API_ENDPOINT;
+import com.capstone.icoffie.monitr.model.SharedPrefManager;
+import com.capstone.icoffie.monitr.model.SingletonApi;
 import com.capstone.icoffie.monitr.model.UserAccountModel;
 import com.capstone.icoffie.monitr.model.UserDeviceModel;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by iCoffie on 2/24/2018.
@@ -33,8 +49,8 @@ public class GenericRecyclerViewAdaper extends RecyclerView.Adapter {
     //private ArrayList<UserAccountModel> userGeofenceArrayList;
     private Context context;
     private int facebook = R.mipmap.ic_facebook;
-    private int jumia = R.mipmap.ic_jumia;
-    private int ecobank = R.mipmap.ic_ecobank;
+    private int shoppn = R.mipmap.ic_shoppn;
+    private int bankex = R.mipmap.ic_bankex;
     private int moodle = R.mipmap.ic_moodle;
     private int type;
 
@@ -70,11 +86,11 @@ public class GenericRecyclerViewAdaper extends RecyclerView.Adapter {
             int accountId = Integer.parseInt(userAccount.getAccountId());
             switch (accountId) {
                 case 1:
-                    accountViewHolder.accountImage.setImageResource(ecobank);
+                    accountViewHolder.accountImage.setImageResource(bankex);
                     break;
 
                 case 2:
-                    accountViewHolder.accountImage.setImageResource(jumia);
+                    accountViewHolder.accountImage.setImageResource(shoppn);
                     break;
 
                 case 3:
@@ -86,7 +102,7 @@ public class GenericRecyclerViewAdaper extends RecyclerView.Adapter {
                     break;
 
                 default:
-                    accountViewHolder.accountImage.setImageResource(moodle);
+                    accountViewHolder.accountImage.setImageResource(bankex);
                     break;
             }
 
@@ -109,8 +125,9 @@ public class GenericRecyclerViewAdaper extends RecyclerView.Adapter {
             UserDeviceModel userDeviceModel = userDevicesArrayList.get(position);
             deviceViewHolder.deviceName.setText(userDeviceModel.getDeviceName());
             deviceViewHolder.deviceImei.append(userDeviceModel.getDeviceType());
-            String enableDisable = userDeviceModel.getDeviceType();
-            if(enableDisable.equals("Active")) {
+            final String deviceType = userDeviceModel.getDeviceType();
+            final String device_id = userDeviceModel.getDeviceId();
+            if(deviceType.equals("Trusted")) {
                 deviceViewHolder.btnDeviceType.setText("Disable");
                 deviceViewHolder.btnDeviceType.setBackgroundColor(Color.RED);
                 deviceViewHolder.btnDeviceType.setTextColor(Color.BLACK);
@@ -124,12 +141,20 @@ public class GenericRecyclerViewAdaper extends RecyclerView.Adapter {
             deviceViewHolder.btnDeviceType.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
                     if(isChecked){
-                        showToast("is checked");
+                        String detect = deviceViewHolder.btnDeviceType.getText().toString();
+                        if(detect.equals("Disable")){
+                            updateDeviceType("Blocked", device_id);
+                        }
                         deviceViewHolder.btnDeviceType.setBackgroundColor(Color.rgb(0,128,128));
                         deviceViewHolder.btnDeviceType.setText("Enable");
+
                     } else{
-                        showToast("is not checked");
+                        String detect = deviceViewHolder.btnDeviceType.getText().toString();
+                        if(detect.equals("Enable")){
+                            updateDeviceType("Trusted", device_id);
+                        }
                         deviceViewHolder.btnDeviceType.setBackgroundColor(Color.RED);
                         deviceViewHolder.btnDeviceType.setText("Disable");
                     }
@@ -199,4 +224,75 @@ public class GenericRecyclerViewAdaper extends RecyclerView.Adapter {
     public void showToast(String message){
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
+
+    // update user type from API
+    public void updateDeviceType(final String deviceType, final String deviceId) {
+//        final ProgressDialog progressDialog = new ProgressDialog(context);
+//        progressDialog.setCanceledOnTouchOutside(false);
+//        progressDialog.setMessage("Fetching Your Devices(s).....");
+//        progressDialog.show();
+
+        Toast.makeText(context.getApplicationContext(), "Updating Device Status...", Toast.LENGTH_LONG).show();
+        // RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, API_ENDPOINT.USERSECURITY_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // stop dialog
+                       // progressDialog.dismiss();
+
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            if (!jsonObject.getBoolean("error")) {
+
+                                Toast.makeText(context.getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+                            } else {
+                                Toast.makeText(context.getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                       // progressDialog.dismiss();
+                        error.printStackTrace();
+                        Toast.makeText(context.getApplicationContext(), "Oops! Check internet connection and refresh", Toast.LENGTH_SHORT).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                Map<String, String> params = new HashMap<>();
+                params.put("type", "update");
+                params.put("policy", "device");
+                params.put("deviceType", deviceType);
+                params.put("userDeviceId", deviceId);
+
+                return params;
+            }
+        };
+        //requestQueue.add(stringRequest);
+        SingletonApi.getClassinstance(context).addToRequest(stringRequest);
+
+    }
+
+    private String detectDeviceType(String type){
+        String toReturn = "";
+
+        if(type.equals("Trusted")){
+            toReturn = "Blocked";
+        }
+        if(type.equals("Blocked")){
+            toReturn = "Trusted";
+        }
+
+        return toReturn;
+
+    }
+
 }

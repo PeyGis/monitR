@@ -73,6 +73,9 @@ public class UserDashBoardActivity extends AppCompatActivity {
             //navigation item
             navigationView = (NavigationView) findViewById(R.id.navigationView);
             headerView = navigationView.getHeaderView(0);
+            welcomeUserTv = (TextView) headerView.findViewById(R.id.welcomename);
+            welcomeUserTv.append(SharedPrefManager.getClassinstance(getApplicationContext()).getUserName());
+
             setUpDrawerContent(navigationView);
     }
 
@@ -157,7 +160,7 @@ public class UserDashBoardActivity extends AppCompatActivity {
 
         AlertDialog dialog = alertBuilder.create();
         dialog.setTitle("Exit App !!!");
-        dialog.setIcon(R.drawable.icon);
+        dialog.setIcon(R.drawable.ic_monitr);
         dialog.show();
     }
 

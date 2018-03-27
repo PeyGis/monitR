@@ -17,6 +17,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -61,16 +62,19 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapLongClickListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapLongClickListener, View.OnClickListener {
 
     private GoogleMap mMap;
     private Toolbar toolbar;
     private Circle mCircle;
+    private FloatingActionButton fab;
     LinearLayout linearLayout;
     String userTokenExtra = "";
     String accountNameExtra = "";
@@ -100,6 +104,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         accountIdExtra = bundle.getString("ACCOUNT_ID");
         userTokenExtra = bundle.getString("USER_TOKEN");
         linearLayout = (LinearLayout) findViewById(R.id.linear_layout);
+
+        //set floating action button
+        fab = (FloatingActionButton)findViewById(R.id.locationfab);
+        fab.setOnClickListener(this);
 
             //init arrayList
             loginHistoryMap = new HashMap<>();
@@ -162,7 +170,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     mSnackbar.show();
 
                 } else{
-                    getUserLoginHistory(userTokenExtra);
+                    getUserLoginHistory(userTokenExtra, accountNameExtra);
                 }
 
 
@@ -184,10 +192,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    public void openDialog(final String providerName, final String token, final Marker marker){
+    public void openDialog(final String providerName, final String token, final Marker marker, final String device_name, final String device_imei){
         AlertDialog.Builder markerDialog = new AlertDialog.Builder(this);
         markerDialog.setTitle("Take Action");
-        final String[] options = {"Logout", "Block Device", "Report"};
+        final String[] options = {"Logout", "Block Device"};
         markerDialog.setIcon(R.drawable.ic_monitr);
         markerDialog.setItems(options, new DialogInterface.OnClickListener() {
             @Override
@@ -197,7 +205,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //call logout API
                     terminateSession(providerName, token, marker);
                 } else if (which ==1){
-                    showToast("Blocking device");
+                    addNewDevice(device_name, device_imei, "Blocked", accountIdExtra);
                 } else{
                     showToast("Reporting to service provider");
                 }
@@ -251,7 +259,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             noBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    openDialog(accountNameExtra, login_device_token, marker);
+                    openDialog(accountNameExtra, login_device_token, marker, loginHistory.getDeviceName(), loginHistory.getDeviceIme());
                 }
             });
 
@@ -268,7 +276,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             //adding new device
-                            addNewDevice(loginHistory.getDeviceName(), loginHistory.getDeviceIme(), accountIdExtra);
+                            addNewDevice(loginHistory.getDeviceName(), loginHistory.getDeviceIme(), "Trusted", accountIdExtra);
                         }
                     }).setNegativeButton("Not Now", new DialogInterface.OnClickListener() {
                         @Override
@@ -361,7 +369,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * fetch user login History from API
      * @param user_token user token
      */
-    public void getUserLoginHistory(final String user_token) {
+    public void getUserLoginHistory(final String user_token, final String provider_name) {
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.setMessage("Connecting to Service Provider.....");
@@ -382,6 +390,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     int i;
                                     for(i=0; i < login_audit_array.length(); i++) {
                                         JSONObject login_record = login_audit_array.getJSONObject(i);
+
                                         LoginHistory loginHistory = new LoginHistory(
                                                 login_record.getDouble("Latitude"),
                                                 login_record.getDouble("Longitude"),
@@ -394,7 +403,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                                         LatLng position = new LatLng(login_record.getDouble("Latitude"), login_record.getDouble("Longitude"));
                                         String title = login_record.getString("Device_Name");
-                                       Marker marker =  mMap.addMarker(new MarkerOptions().position(position).title(title));
+                                       Marker marker =  mMap.addMarker(new MarkerOptions().position(position).title(title).icon(BitmapDescriptorFactory.fromResource(R.drawable.smatfone)));
                                         loginHistoryMap.put(marker.getId(), loginHistory);
 
                                     }
@@ -428,13 +437,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             protected Map<String, String> getParams() throws AuthFailureError {
 
                 Map<String, String> params = new HashMap<>();
-                params.put("type", "audit");
+                params.put("type", "get_login_history");
                 params.put("user_token", user_token);
+                params.put("provider_name", provider_name);
 
                 return params;
             }
         };
         SingletonApi.getClassinstance(getApplicationContext()).addToRequest(stringRequest);
+
+    }
+
+    public String readableDate(String sqlDate){
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy hh:mm a");
+        String date = formatter.format(Date.parse(sqlDate));
+        return date;
 
     }
 
@@ -630,9 +647,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @param device_name
      * @param device_imei
      * @param account_id
+     * @param  device_type
      */
-    public void addNewDevice(final String device_name, final String device_imei, final String account_id) {
-        showToast("Adding this device...");
+    public void addNewDevice(final String device_name, final String device_imei, final String device_type, final String account_id) {
+        if(device_type.equals("Trusted")){
+            showToast("Adding " + device_name + " device...");
+        } else{
+            showToast("Blocking " + device_name + " device...");
+        }
+
 
         // RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, API_ENDPOINT.USERSECURITY_URL,
@@ -644,8 +667,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             JSONObject jsonObject = new JSONObject(response);
                             if (!jsonObject.getBoolean("error")) {
                                 Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
-                                loginDetailsalertDialog.dismiss();
-
+                                if(device_type.equals("Trusted")){
+                                    loginDetailsalertDialog.dismiss();
+                                }
                             } else if (jsonObject.getBoolean("error")) {
                                 Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
                             }
@@ -673,6 +697,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 params.put("accountId", account_id);
                 params.put("deviceName", device_name);
                 params.put("deviceImei", device_imei);
+                params.put("deviceType", device_type);
                 params.put("type", "create");
                 params.put("policy", "device");
 
@@ -684,7 +709,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     public void addGeofenceAPI(final String distance, final String lat, final String lng, final String account_id) {
-        showToast("Adding this Geofence...");
+        showToast("Adding Your Geofence...");
 
         // RequestQueue requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, API_ENDPOINT.USERSECURITY_URL,
@@ -744,58 +769,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    public void addDeviceManual(){
-
-        //inflate layout and get the dialog view
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.add_device_dialog, null);
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setView(view);
-
-        //get view components by referencing id
-        final EditText device_title = (EditText)view.findViewById(R.id.deviceTitle);
-        final EditText device_ime = (EditText)view.findViewById(R.id.deviceId);
-        Button thisDevice = (Button)view.findViewById(R.id.thisDevice);
-
-        thisDevice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String serial = getDeviceIMEI();
-                String model = Build.MODEL;
-                device_ime.setText(serial);
-                device_title.setText(model);
-                device_ime.setFocusable(false);
-                device_ime.setClickable(false);
-                device_title.setFocusable(false);
-                device_title.setClickable(false);
-            }
-        });
-//                Button canDevice = (Button)view.findViewById(R.id.cancelDevice);
-        //makeToast("Adding New Device...");
-        builder.setCancelable(false);
-        builder.setIcon(R.drawable.icon);
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String title = device_title.getText().toString();
-                String ime = device_ime.getText().toString();
-                showToast("{Title: " + title + ", Ime: " + ime + "}");
-
-            }
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        // create alert dialog
-        AlertDialog alertDialog = builder.create();
-        //alertDialog.setIcon(R.drawable.icon);
-        // show alert
-        alertDialog.show();
-    }
-
     /**
      * Returns the unique identifier for the device
      *
@@ -833,5 +806,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             e.printStackTrace();
         }
         return toReturn;
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+
+        if(id ==R.id.locationfab){
+            if(mMap != null){
+                LatLng userLocation = new LatLng(latitude, longitude);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 10));
+            }
+        }
     }
 }

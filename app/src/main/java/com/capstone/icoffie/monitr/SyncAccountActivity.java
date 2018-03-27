@@ -1,8 +1,10 @@
 package com.capstone.icoffie.monitr;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -84,7 +86,10 @@ public class SyncAccountActivity extends AppCompatActivity {
                 } else {
                     emailwrapper.setErrorEnabled(false);
                     passwordwrapper.setErrorEnabled(false);
-                    callSyncAccountAPI(useremail, userpassword, accountIdExtra, providerNameExtra);
+
+                    //Display Alert
+                    showDialog(useremail, userpassword, accountIdExtra, providerNameExtra);
+
                 }
             }
         });
@@ -108,6 +113,8 @@ public class SyncAccountActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(response);
                             if (!jsonObject.getBoolean("error")) {
                                 Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(SyncAccountActivity.this, UserDashBoardActivity.class));
+                                finish();
 
                             } else if (jsonObject.getBoolean("error")) {
                                 Toast.makeText(getApplicationContext(), jsonObject.getString("message"), Toast.LENGTH_LONG).show();
@@ -144,5 +151,32 @@ public class SyncAccountActivity extends AppCompatActivity {
         };
         //requestQueue.add(stringRequest);
         SingletonApi.getClassinstance(getApplicationContext()).addToRequest(stringRequest);
+    }
+
+    private void showDialog(String useremail, String userpassword, final String accountIdExtra, final String providerNameExtra){
+        AlertDialog.Builder syncAct = new AlertDialog.Builder(this);
+        syncAct.setTitle("Connect with monitR ?");
+        syncAct.setMessage("monitR will have access to your login history as you interact with your account.");
+        syncAct.setCancelable(false);
+        syncAct.setIcon(R.drawable.ic_monitr);
+        final String finalUseremail = useremail;
+        final String finalUserpassword = userpassword;
+        syncAct.setPositiveButton("I agree", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //synchrone account
+                callSyncAccountAPI(finalUseremail, finalUserpassword, accountIdExtra, providerNameExtra);
+            }
+        }).setNegativeButton("I disagree", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        // create alert dialog
+        AlertDialog addAccountDialog = syncAct.create();
+        // show alert
+        addAccountDialog.show();
     }
 }

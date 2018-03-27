@@ -155,6 +155,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 params.put("email", email);
                 params.put("password", password);
                 params.put("fcm_token", SharedPrefManager.getClassinstance(getApplicationContext()).getDeviceToken());
+                params.put("type", "register");
                 return params;
             }
         };

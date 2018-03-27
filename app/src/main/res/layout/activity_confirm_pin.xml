@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_confirm_pin"
     android:layout_width="match_parent"
@@ -19,7 +19,7 @@
             android:id="@+id/textAccountName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Confirm 6-digit PIN "
+            android:text="Confirm Your 6-digit PIN "
             android:textColor="@color/colorPrimaryDark"
             android:layout_gravity="center"
             android:layout_marginBottom="20dp"
@@ -63,4 +63,4 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"/>
     </LinearLayout>
 
-</RelativeLayout>
+</ScrollView>

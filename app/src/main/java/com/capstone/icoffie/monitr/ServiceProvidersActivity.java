@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ServiceProvidersActivity extends AppCompatActivity implements View.OnClickListener {
     private Button google, jumia, fidelity;
@@ -41,23 +42,24 @@ public class ServiceProvidersActivity extends AppCompatActivity implements View.
 
         switch (id){
             case R.id.actGoogle:
-                Intent googleintent = new Intent(this, SyncAccountActivity.class);
-                googleintent.putExtra("PROVIDER_NAME", "Google");
-                googleintent.putExtra("ACCOUNT_ID", "1");
-                startActivity(googleintent);
+//                Intent googleintent = new Intent(this, SyncAccountActivity.class);
+//                googleintent.putExtra("PROVIDER_NAME", "easy-Pay");
+//                googleintent.putExtra("ACCOUNT_ID", "3");
+//                startActivity(googleintent);
+                Toast.makeText(getApplicationContext(), "Provider not activated", Toast.LENGTH_LONG).show();
                 break;
 
             case R.id.actJumia:
                 Intent jumiaintent = new Intent(this, SyncAccountActivity.class);
-                jumiaintent.putExtra("PROVIDER_NAME", "Jumia");
+                jumiaintent.putExtra("PROVIDER_NAME", "Shoppn");
                 jumiaintent.putExtra("ACCOUNT_ID", "2");
                 startActivity(jumiaintent);
                 break;
 
             case R.id.actFidelity:
                 Intent fidelityintent = new Intent(this, SyncAccountActivity.class);
-                fidelityintent.putExtra("PROVIDER_NAME", "Fidelity");
-                fidelityintent.putExtra("ACCOUNT_ID", "3");
+                fidelityintent.putExtra("PROVIDER_NAME", "Bankex");
+                fidelityintent.putExtra("ACCOUNT_ID", "1");
                 startActivity(fidelityintent);
                 break;
 

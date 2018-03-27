@@ -113,8 +113,9 @@ public class ViewDevicesActivity extends AppCompatActivity implements SwipeRefre
                                     UserDeviceModel device = new UserDeviceModel(
                                             oneDevice.getString("Device_Name"),
                                             oneDevice.getString("Device_IMEI"),
-                                            oneDevice.getString("Status"),
-                                            oneDevice.getString("Online_Account_Id"));
+                                            oneDevice.getString("Device_Type"),
+                                            oneDevice.getString("Online_Account_Id"),
+                                            oneDevice.getString("User_Device_Id"));
 
                                     if(!isInList(oneDevice.getString("Device_IMEI"))){
                                         userDeviceModelArrayList.add(device);
